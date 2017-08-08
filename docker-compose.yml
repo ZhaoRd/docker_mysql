@@ -1,0 +1,41 @@
+# Use root/12346 as user/password credentials
+
+version: '2'
+
+services:
+    mysql:
+        image: mysql
+        container_name: mysql
+        restart: always
+        ports:
+            - 3307:3306
+        volumes:
+            - /D/dockerdata/mysql/conf:/etc/mysql/conf.d  # 配置文件
+            - /D/dockerdata/mysql/data:/var/lib/mysql # 数据存储
+            - /D/dockerdata/mysql/logs:/var/log/mysql # 日志
+        environment:
+            MYSQL_ROOT_PASSWORD: 123456
+        networks:
+            mysql:
+                ipv4_address: 172.18.3.2
+    mysql_admin:   
+        image: daocloud.io/daocloud/phpmyadmin:edge 
+        container_name: mysql_admin        
+        privileged: false   
+        restart: always   
+        ports:   
+            - '10080:80'   
+        environment:   
+            - PMA_PORT=3306   
+            - PMA_HOST=172.18.3.2 #这里用的是内网IP，因此端口对应映射前的端口
+        networks:
+            mysql:
+                ipv4_address: 172.18.3.3
+networks:
+  mysql:
+    driver: "bridge"
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.18.3.0/24
+        gateway: 172.18.3.1
