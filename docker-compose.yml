@@ -5,7 +5,7 @@ version: '2'
 services:
     mysql:
         image: mysql
-        container_name: mysql
+        container_name: demomysql
         restart: always
         ports:
             - 3317:3306
@@ -15,27 +15,15 @@ services:
             - ./logs:/var/log/mysql # 日志
         environment:
             MYSQL_ROOT_PASSWORD: 123456
-        networks:
-            mysql:
-                ipv4_address: 172.18.3.2
     mysql_admin:   
         image: daocloud.io/daocloud/phpmyadmin:edge 
-        container_name: mysql_admin        
+        container_name: demomysql_admin        
         privileged: false   
         restart: always   
+        links:
+            - mysql:db
         ports:   
             - '10081:80'   
         environment:   
             - PMA_PORT=3306   
-            - PMA_HOST=172.18.3.2 #这里用的是内网IP，因此端口对应映射前的端口
-        networks:
-            mysql:
-                ipv4_address: 172.18.3.3
-networks:
-  mysql:
-    driver: "bridge"
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.18.3.0/24
-        gateway: 172.18.3.1
+            - PMA_HOST=db
